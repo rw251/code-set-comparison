@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <title>Compare</title>
+
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <input
+        type="text"
+        id="lhs"
+        placeholder="Paste the first code set here..."
+      />
+      <input type="text" id="rhs" />
+
+      <div
+        id="lhstats"
+        style="
+          align-items: center;
+          display: none;
+          justify-content: space-around;
+        "
+      >
+        <span></span>
+        <button id="lhtoggle">Hide matching rows</button>
+      </div>
+      <div
+        id="rhstats"
+        style="
+          align-items: center;
+          display: none;
+          justify-content: space-around;
+        "
+      >
+        <span></span>
+        <button id="rhtoggle">Hide matching rows</button>
+      </div>
+
+      <div style="grid-area: 3 / 1 / 4 / 2">
+        <p id="lhP"></p>
+        <table id="lhtable"></table>
+      </div>
+      <div style="grid-area: 3 / 2 / 4 / 3">
+        <p id="rhP"></p>
+        <table id="rhtable"></table>
+      </div>
+    </div>
+    <div id="popup">
+      <div>
+        <h1>There are more than two columns</h1>
+        <p>Which column contains the clinical codes?</p>
+        <table id="poptable"></table>
+        <div
+          style="
+            position: absolute;
+            top: 2px;
+            left: calc(100% - 120px);
+            width: 100px;
+            z-index: 1;
+          "
+        >
+          <button id="cancel">CANCEL</button>
+        </div>
+      </div>
+    </div>
+    <script src="/script.js" defer></script>
+  </body>
+</html>
