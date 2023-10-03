@@ -16,6 +16,7 @@ tables[RHS] = document.getElementById('rhtable');
 tables[TEMP] = document.getElementById('poptable');
 tables[LHS].originalHTML = tables[LHS].innerHTML;
 tables[RHS].originalHTML = tables[RHS].innerHTML;
+tables[TEMP].originalHTML = tables[TEMP].innerHTML;
 
 let lhCommon = 0;
 let rhCommon = 0;
@@ -145,6 +146,7 @@ function getPasteContent(pasteEvent) {
       displayCodeset(side, codesets[side]);
     } else {
       codesets[TEMP] = codeset;
+      tables[TEMP].innerHTML = tables[TEMP].originalHTML;
       displayCodeset(TEMP, codeset);
       $q.innerText =
         'Click to select the column which contains the clinical codes.';
