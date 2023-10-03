@@ -29,8 +29,8 @@ const inputs = {};
 inputs[LHS] = document.getElementById('lhs');
 inputs[RHS] = document.getElementById('rhs');
 
-let codeIndex = 0;
-let descIndex = 0;
+let codeIndex = -1;
+let descIndex = -1;
 let lhCommonVisibility = 0;
 let rhCommonVisibility = 0;
 const toggleText = ['Hide matching rows', 'Show matching rows'];
@@ -76,7 +76,7 @@ tables[TEMP].addEventListener('click', (e) => {
   if (!cell) {
     return;
   } // Quit, not clicked on a cell
-  if (!codeIndex && codeIndex !== 0) {
+  if (codeIndex < 0) {
     codeIndex = cell.cellIndex;
     $q.innerText =
       'Now click to select the column which contains the descriptions.';
@@ -158,8 +158,8 @@ function showPopup() {
   $popup.style.display = 'block';
 }
 function hidePopup() {
-  codeIndex = 0;
-  descIndex = 0;
+  codeIndex = -1;
+  descIndex = -1;
   $popup.style.display = 'none';
 }
 
