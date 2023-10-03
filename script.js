@@ -76,7 +76,7 @@ tables[TEMP].addEventListener('click', (e) => {
   if (!cell) {
     return;
   } // Quit, not clicked on a cell
-  if (!codeIndex) {
+  if (!codeIndex && codeIndex !== 0) {
     codeIndex = cell.cellIndex;
     $q.innerText =
       'Now click to select the column which contains the descriptions.';
