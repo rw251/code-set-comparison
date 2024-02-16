@@ -5,6 +5,7 @@ const $rhtogButton = document.getElementById('rhtoggle');
 const $cancelButton = document.getElementById('cancel');
 const $lhstats = document.getElementById('lhstats');
 const $rhstats = document.getElementById('rhstats');
+const $continueButton = document.getElementById('continue');
 
 const LHS = 'LHS';
 const RHS = 'RHS';
@@ -245,3 +246,7 @@ function compareCodesets() {
   $lhstats.style.display = codes[LHS].length > 0 ? 'flex' : 'none';
   $rhstats.style.display = codes[RHS].length > 0 ? 'flex' : 'none';
 }
+
+$continueButton.addEventListener('click', () => {
+  document.querySelector('.mask').classList.add('invisible');
+});
