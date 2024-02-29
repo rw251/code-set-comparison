@@ -27,6 +27,33 @@
       <p>If you don't mind a poor experience, click below to continue.</p>
       <button id="continue">Continue to site</button>
     </div>
+    <div class="banner">
+      <span class="title">Clinical code set comparison tool</span>
+      <button class="show-instructions">Show instructions</button>
+    </div>
+    <div id="help">
+      <div class="close-button">X</div>
+      <h2>Instructions</h2>
+      <p>
+        This tool allows you to quickly compare two different clinical code
+        sets. Simply paste one code set in the left hand box, and one code set
+        in the right hand box.
+      </p>
+      <p>
+        The tool assumes that you are pasting tabular data (or tab-separated
+        data), and that either:
+      </p>
+      <ul>
+        <li>
+          there are 2 columns: the first is the clinical code, and the second is
+          the description, or
+        </li>
+        <li>
+          there are more than 2 columns but at least one is a clinical code and
+          at least one is a description
+        </li>
+      </ul>
+    </div>
     <div class="wrapper">
       <input
         type="text"
@@ -40,22 +67,43 @@
         style="
           align-items: center;
           display: none;
-          justify-content: space-around;
+          justify-content: space-between;
         "
       >
         <span></span>
-        <button id="lhtoggle">Hide matching rows</button>
+
+        <div class="button-bar">
+          <button id="lh-toggle" style="width: 100px; height: 42px">
+            Hide matching rows
+          </button>
+          <button id="lh-copy-matches" style="width: 100px; height: 42px">
+            Copy matching rows
+          </button>
+          <button id="lhcopy" style="width: 100px; height: 42px">
+            Copy non-matching rows
+          </button>
+        </div>
       </div>
       <div
         id="rhstats"
         style="
           align-items: center;
           display: none;
-          justify-content: space-around;
+          justify-content: space-between;
         "
       >
         <span></span>
-        <button id="rhtoggle">Hide matching rows</button>
+        <div class="button-bar">
+          <button id="rh-toggle" style="width: 100px; height: 42px">
+            Hide matching rows
+          </button>
+          <button id="rh-copy-matches" style="width: 100px; height: 42px">
+            Copy matching rows
+          </button>
+          <button id="rhcopy" style="width: 100px; height: 42px">
+            Copy non-matching rows
+          </button>
+        </div>
       </div>
 
       <div style="grid-area: 3 / 1 / 4 / 2">

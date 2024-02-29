@@ -1,11 +1,14 @@
 const $popup = document.getElementById('popup');
 const $q = $popup.querySelector('div > p');
-const $lhtogButton = document.getElementById('lhtoggle');
-const $rhtogButton = document.getElementById('rhtoggle');
+const $lhtogButton = document.getElementById('lh-toggle');
+const $rhtogButton = document.getElementById('rh-toggle');
 const $cancelButton = document.getElementById('cancel');
 const $lhstats = document.getElementById('lhstats');
 const $rhstats = document.getElementById('rhstats');
 const $continueButton = document.getElementById('continue');
+const $helpMessage = document.getElementById('help');
+const $showInstructionsButton = document.querySelector('.show-instructions');
+const $closeInstructionsButton = document.querySelector('.close-button');
 
 const LHS = 'LHS';
 const RHS = 'RHS';
@@ -22,6 +25,9 @@ tables[TEMP].originalHTML = tables[TEMP].innerHTML;
 let lhCommon = 0;
 let rhCommon = 0;
 
+const nonMatching = {};
+const matching = {};
+
 const codesets = {};
 codesets[LHS] = [];
 codesets[RHS] = [];
@@ -31,6 +37,14 @@ const inputs = {};
 inputs[LHS] = document.getElementById('lhs');
 inputs[RHS] = document.getElementById('rhs');
 
+const copyButtons = {};
+copyButtons[LHS] = document.getElementById('lhcopy');
+copyButtons[RHS] = document.getElementById('rhcopy');
+
+const copyMatchesButtons = {};
+copyMatchesButtons[LHS] = document.getElementById('lh-copy-matches');
+copyMatchesButtons[RHS] = document.getElementById('rh-copy-matches');
+
 let codeIndex = -1;
 let descIndex = -1;
 let lhCommonVisibility = 0;
@@ -38,8 +52,45 @@ let rhCommonVisibility = 0;
 const toggleText = ['Hide matching rows', 'Show matching rows'];
 const VISIBILITY = ['collapse', 'visible'];
 
+async function copy(side, isMatches) {
+  const now = new Date();
+  const button = isMatches ? copyMatchesButtons[side] : copyButtons[side];
+  button.setAttribute('disabled', '');
+  button.innerText = 'Copying...';
+  const dataToCopy = (isMatches ? matching[side] : nonMatching[side])
+    .map(({ code, description }) => `${code}\t${description}`)
+    .join('\n');
+  // Copy the text inside the text field
+  await navigator.clipboard.writeText(dataToCopy);
+
+  const diff = new Date() - now;
+  setTimeout(() => {
+    button.removeAttribute('disabled', '');
+    button.innerText = 'Copied!';
+    setTimeout(() => {
+      button.innerText = isMatches
+        ? 'Copy matching rows'
+        : 'Copy non-matching rows';
+    }, 2000);
+  }, Math.max(0, 500 - diff));
+}
+
+copyButtons[LHS].addEventListener('click', () => {
+  copy(LHS);
+});
+copyButtons[RHS].addEventListener('click', () => {
+  copy(RHS);
+});
+copyMatchesButtons[LHS].addEventListener('click', () => {
+  copy(LHS, true);
+});
+copyMatchesButtons[RHS].addEventListener('click', () => {
+  copy(RHS, true);
+});
+
 $cancelButton.addEventListener('click', (e) => {
   hidePopup();
+  inputs[currentSide || LHS].select();
 });
 
 document.onkeydown = function (evt) {
@@ -52,6 +103,7 @@ document.onkeydown = function (evt) {
   }
   if (isEscape) {
     hidePopup();
+    inputs[currentSide].select();
   }
 };
 
@@ -137,8 +189,27 @@ function getPasteContent(pasteEvent) {
   return content;
 }
 
+function hideHelpMessage() {
+  $helpMessage.style.display = 'none';
+  $showInstructionsButton.style.display = 'block';
+}
+
+function showHelpMessage() {
+  $helpMessage.style.display = 'block';
+  $showInstructionsButton.style.display = 'none';
+}
+
+$showInstructionsButton.addEventListener('click', () => {
+  showHelpMessage();
+});
+
+$closeInstructionsButton.addEventListener('click', () => {
+  hideHelpMessage();
+});
+
 [LHS, RHS].forEach((side) => {
   inputs[side].addEventListener('paste', (e) => {
+    hideHelpMessage();
     tables[side].innerHTML = tables[side].originalHTML;
     const content = getPasteContent(e);
     const { codeset, hasMoreThan2Fields } = parsePastedContent(content);
@@ -221,32 +292,79 @@ function compareCodesets() {
   lhCommon = 0;
   rhCommon = 0;
   const codes = {};
+  nonMatching[LHS] = [];
+  nonMatching[RHS] = [];
+  matching[LHS] = [];
+  matching[RHS] = [];
   codes[LHS] = codesets[LHS].map((x) => x.code);
   codes[RHS] = codesets[RHS].map((x) => x.code);
   codes[LHS].forEach((code, i) => {
     if (codes[RHS].indexOf(code) > -1) {
       tables[LHS].rows[i + 1].classList.add('in-other');
       lhCommon += 1;
+      matching[LHS].push(codesets[LHS][i]);
     } else {
       tables[LHS].rows[i + 1].classList.remove('in-other');
+      nonMatching[LHS].push(codesets[LHS][i]);
     }
   });
   codes[RHS].forEach((code, i) => {
     if (codes[LHS].indexOf(code) > -1) {
       tables[RHS].rows[i + 1].classList.add('in-other');
       rhCommon += 1;
-    } else tables[RHS].rows[i + 1].classList.remove('in-other');
+      matching[RHS].push(codesets[RHS][i]);
+    } else {
+      tables[RHS].rows[i + 1].classList.remove('in-other');
+      nonMatching[RHS].push(codesets[RHS][i]);
+    }
   });
-  $lhstats.querySelector(
-    'span'
-  ).innerText = `${codes[LHS].length} codes. ${lhCommon} of which in other set.`;
-  $rhstats.querySelector(
-    'span'
-  ).innerText = `${codes[RHS].length} codes. ${rhCommon} of which in other set.`;
+  $lhstats.querySelector('span').innerText = `${codes[LHS].length} code${
+    codes[LHS].length !== 1 ? 's' : ''
+  }, ${
+    lhCommon < codes[LHS].length
+      ? lhCommon
+      : codes[LHS].length === 1
+      ? 'it'
+      : 'all'
+  } appear${lhCommon === 1 ? 's' : ''} in other set.`;
+  $rhstats.querySelector('span').innerText = `${codes[RHS].length} code${
+    codes[RHS].length !== 1 ? 's' : ''
+  }, ${
+    rhCommon < codes[RHS].length
+      ? rhCommon
+      : codes[RHS].length === 1
+      ? 'it'
+      : 'all'
+  } appear${rhCommon === 1 ? 's' : ''} in other set.`;
   $lhstats.style.display = codes[LHS].length > 0 ? 'flex' : 'none';
   $rhstats.style.display = codes[RHS].length > 0 ? 'flex' : 'none';
+
+  if (lhCommon === codes[LHS].length) {
+    copyButtons[LHS].setAttribute('disabled', '');
+  } else {
+    copyButtons[LHS].removeAttribute('disabled', '');
+  }
+
+  if (rhCommon === codes[RHS].length) {
+    copyButtons[RHS].setAttribute('disabled', '');
+  } else {
+    copyButtons[RHS].removeAttribute('disabled', '');
+  }
+  if (lhCommon > 0) {
+    copyMatchesButtons[LHS].removeAttribute('disabled', '');
+  } else {
+    copyMatchesButtons[LHS].setAttribute('disabled', '');
+  }
+  if (rhCommon > 0) {
+    copyMatchesButtons[RHS].removeAttribute('disabled', '');
+  } else {
+    copyMatchesButtons[RHS].setAttribute('disabled', '');
+  }
 }
 
 $continueButton.addEventListener('click', () => {
   document.querySelector('.mask').classList.add('invisible');
+  inputs[LHS].focus();
 });
+
+inputs[LHS].focus();
